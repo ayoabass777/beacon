@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+*.egg
+
+# Conda
+.conda/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/*.tfplan
+terraform/.terraform.lock.hcl
+
+# Helm
+chart/beacon/charts/
+*.tgz
+
+# Kubernetes secrets with real values (the demo secret.yaml is fine)
+# If you replace stringData with real creds, add the file here
+k8s/secret-prod.yaml
+
+# Environment / credentials
+.env
+.env.*
+*.pem
+*.key
+
+# Minikube
+.minikube/
+
+# Logs
+*.log

@@ -47,8 +47,8 @@ graph TD
 
 ```
 beacon/
+├── .gitignore          ← Python, Terraform state, Helm deps, secrets, IDE
 ├── README.md           ← you are here (the build guide)
-├── CLAUDE.md           ← project context for Claude Code
 ├── blog.md             ← brief + outline for the Dev.to write-up
 ├── runbook.md          ← incident runbook (filled in at Phase 5)
 ├── app/                ← the instrumented service
@@ -61,6 +61,8 @@ beacon/
 ├── gitops/             ← Argo CD app (Phase 6, stretch)
 └── terraform/          ← platform-as-code (Phase 7, stretch)
 ```
+
+> **Note:** `.terraform/`, `*.tfstate`, `.venv/`, `__pycache__/`, Helm `charts/` deps, and `.env` files are all gitignored. The demo `k8s/secret.yaml` is tracked (placeholder only) — never commit real credentials there.
 
 ---
 
