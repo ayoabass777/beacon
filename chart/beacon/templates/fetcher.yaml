@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fetcher
+  labels: { app: fetcher }
+spec:
+  replicas: {{ .Values.fetcher.replicas }}
+  selector:
+    matchLabels: { app: fetcher }
+  template:
+    metadata:
+      labels: { app: fetcher }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: fetcher
+          image: {{ .Values.fetcher.image }}
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8000 }]
+          env:
+            - name: BEACON_FAILURE_RATE
+              value: "{{ .Values.fetcher.failureRate }}"
+          readinessProbe:
+            httpGet: { path: /healthz, port: 8000 }
+            initialDelaySeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fetcher
+  labels: { app: fetcher }
+spec:
+  selector: { app: fetcher }
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000

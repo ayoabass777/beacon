@@ -1,0 +1,18 @@
+# Phase 6 (stretch) — Argo CD watches this repo's Helm chart and keeps the
+# cluster in sync with Git. Change values.yaml, push, watch it reconcile.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: beacon
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ayoabass777/beacon.git
+    targetRevision: main
+    path: chart/beacon
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }

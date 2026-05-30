@@ -1,0 +1,22 @@
+# Phase 5 — fire when the fetcher error rate exceeds 5% over 5 minutes.
+# This is a PrometheusRule (kube-prometheus-stack picks it up automatically).
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: beacon-alerts
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: beacon.rules
+      rules:
+        - alert: BeaconHighErrorRate
+          expr: |
+            sum(rate(beacon_fetch_errors_total[5m]))
+              / sum(rate(beacon_fetches_total[5m])) > 0.05
+          for: 5m
+          labels: { severity: warning }
+          annotations:
+            summary: "Beacon fetcher error rate above 5%"
+            description: "Error ratio has exceeded 5% for 5 minutes. See runbook.md."
+            runbook: "https://github.com/ayoabass777/beacon/blob/main/runbook.md"

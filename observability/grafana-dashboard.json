@@ -1,0 +1,17 @@
+{
+  "__comment": "Phase 3 starter. Import into Grafana, then ADD the panels yourself using PROMQL_CHEATSHEET.md. Left intentionally minimal so the dashboard-building is real practice.",
+  "title": "Beacon — Fetcher",
+  "schemaVersion": 39,
+  "tags": ["beacon"],
+  "panels": [],
+  "templating": {
+    "list": [
+      {
+        "__comment": "Phase 3 task: turn this into a real variable (e.g. namespace) to practice templating.",
+        "name": "namespace",
+        "type": "constant",
+        "query": "default"
+      }
+    ]
+  }
+}

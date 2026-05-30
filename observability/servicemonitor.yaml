@@ -1,0 +1,15 @@
+# Phase 3 — tells the kube-prometheus-stack to scrape the fetcher.
+# Apply AFTER installing kube-prometheus-stack (it provides the ServiceMonitor CRD).
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: fetcher
+  labels:
+    release: kube-prometheus-stack   # must match the stack's serviceMonitorSelector
+spec:
+  selector:
+    matchLabels: { app: fetcher }
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

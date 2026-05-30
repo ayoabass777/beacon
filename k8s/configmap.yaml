@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beacon-config
+data:
+  BEACON_FAILURE_RATE: "0.02"   # bump this to make the alert fire (Phase 5)
+  POSTGRES_DB: beacon

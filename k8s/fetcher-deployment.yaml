@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fetcher
+  labels: { app: fetcher }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: fetcher }
+  template:
+    metadata:
+      labels: { app: fetcher }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: fetcher
+          image: beacon-fetcher:local   # build with: minikube image build -t beacon-fetcher:local ./app
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8000 }]
+          envFrom:
+            - configMapRef: { name: beacon-config }
+          readinessProbe:
+            httpGet: { path: /healthz, port: 8000 }
+            initialDelaySeconds: 3

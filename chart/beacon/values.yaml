@@ -1,0 +1,10 @@
+fetcher:
+  image: beacon-fetcher:local
+  replicas: 1
+  failureRate: "0.02"   # raise to fire the alert in Phase 5
+postgres:
+  image: postgres:16-alpine
+  db: beacon
+  password: changeme    # override with --set or a secrets manager in real use
+redis:
+  image: redis:7-alpine
