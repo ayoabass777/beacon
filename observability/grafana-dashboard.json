@@ -376,6 +376,70 @@
           "version": "13.0.1+security-01"
         }
       }
+    },
+    "panel-4": {
+      "kind": "Panel",
+      "spec": {
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "hidden": false,
+                  "query": {
+                    "datasource": {
+                      "name": "efntfy16hsnpcd"
+                    },
+                    "group": "loki",
+                    "kind": "DataQuery",
+                    "spec": {
+                      "direction": "backward",
+                      "editorMode": "code",
+                      "expr": "{app=\"fetcher\"}",
+                      "queryType": "range"
+                    },
+                    "version": "v0"
+                  },
+                  "refId": "A"
+                }
+              }
+            ],
+            "queryOptions": {},
+            "transformations": []
+          }
+        },
+        "description": "",
+        "id": 4,
+        "links": [],
+        "title": "Fetcher Logs",
+        "vizConfig": {
+          "group": "logs",
+          "kind": "VizConfig",
+          "spec": {
+            "fieldConfig": {
+              "defaults": {},
+              "overrides": []
+            },
+            "options": {
+              "dedupStrategy": "none",
+              "enableInfiniteScrolling": false,
+              "enableLogDetails": true,
+              "prettifyLogMessage": true,
+              "showControls": false,
+              "showFieldSelector": false,
+              "showLevel": true,
+              "showTime": false,
+              "sortOrder": "Descending",
+              "timestampResolution": "ms",
+              "unwrappedColumns": false,
+              "wrapLogMessage": false
+            }
+          },
+          "version": "13.0.1+security-01"
+        }
+      }
     }
   },
   "layout": {
@@ -418,6 +482,19 @@
             "height": 8,
             "width": 12,
             "x": 0,
+            "y": 8
+          }
+        },
+        {
+          "kind": "GridLayoutItem",
+          "spec": {
+            "element": {
+              "kind": "ElementReference",
+              "name": "panel-4"
+            },
+            "height": 8,
+            "width": 12,
+            "x": 12,
             "y": 8
           }
         }
