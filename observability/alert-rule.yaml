@@ -5,7 +5,7 @@ kind: PrometheusRule
 metadata:
   name: beacon-alerts
   labels:
-    release: kube-prometheus-stack
+    release: monitoring
 spec:
   groups:
     - name: beacon.rules
