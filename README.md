@@ -48,50 +48,53 @@ graph TD
 ```
 beacon/
 ├── .gitignore          ← Python, Terraform state, Helm deps, secrets, IDE
-├── README.md           ← you are here (the build guide)
-├── blog.md             ← brief + outline for the Dev.to write-up
-├── runbook.md          ← incident runbook (filled in at Phase 5)
+├── README.md           ← you are here
+├── runbook.md          ← incident runbook with real postmortem
 ├── app/                ← the instrumented service
 │   ├── fetcher.py
 │   ├── requirements.txt
 │   └── Dockerfile
 ├── k8s/                ← raw manifests (Phase 1)
 ├── chart/beacon/       ← Helm chart (Phase 2)
-├── observability/      ← scrape config, dashboard, alert rule (Phases 3–5)
+├── observability/      ← ServiceMonitor, dashboard JSON, alert rule (Phases 3–5)
 ├── gitops/             ← Argo CD app (Phase 6, stretch)
 └── terraform/          ← platform-as-code (Phase 7, stretch)
 ```
 
-> **Note:** `.terraform/`, `*.tfstate`, `.venv/`, `__pycache__/`, Helm `charts/` deps, and `.env` files are all gitignored. The demo `k8s/secret.yaml` is tracked (placeholder only) — never commit real credentials there.
+> **Note:** `.terraform/`, `*.tfstate`, `.venv/`, `__pycache__/`, Helm `charts/` deps, `.env` files, `CLAUDE.md`, and `blog.md` are all gitignored. The demo `k8s/secret.yaml` is tracked (placeholder only) — never commit real credentials there.
 
 ---
 
-## Build phases
+## What was built
 
-Each phase maps to a real platform skill. Tick them off as you go.
+- [x] **Phase 1 — Run on k8s.** Deployed fetcher + Postgres + Redis to minikube with raw manifests. Verified `/metrics` endpoint serving Prometheus counters and histograms.
+- [x] **Phase 2 — Package with Helm.** Migrated to Helm chart with `values.yaml`-driven config. Practiced install, upgrade (`--set fetcher.replicas=2`), and rollback.
+- [x] **Phase 3 — Metrics + dashboard.** Installed `kube-prometheus-stack`, created a ServiceMonitor, and built a Grafana dashboard with three PromQL panels: throughput (`rate`), p95 latency (`histogram_quantile`), and error rate.
+- [x] **Phase 4 — Logs.** Installed Loki + Promtail, added a Loki data source to Grafana, and added a logs panel using LogQL (`{app="fetcher"}`).
+- [x] **Phase 5 — Alert + runbook.** Created a `PrometheusRule` (error rate > 5% for 5m). Triggered a real incident by setting `failureRate=0.50` via Helm upgrade. Alert fired, diagnosed via dashboard + logs, resolved by rolling back the config. Wrote a postmortem in `runbook.md`.
+- [ ] **Phase 6 (stretch) — GitOps.** Argo CD.
+- [ ] **Phase 7 (stretch) — Terraform.** Helm provider IaC.
 
-- [ ] **Phase 1 — Run on k8s.** `minikube start`, then `kubectl apply -f k8s/`. Debug with `kubectl get pods` / `logs` / `describe` until all pods are Running. *(Skill: kubectl, workloads/services, configmaps/secrets)*
-- [ ] **Phase 2 — Package with Helm.** `helm install beacon ./chart/beacon`. Practice `helm upgrade` and `helm rollback`. *(Skill: Helm)*
-- [ ] **Phase 3 — Metrics + dashboard.** Install `kube-prometheus-stack`, scrape `/metrics`, build ONE Grafana dashboard (throughput, p95 latency, error rate). Write the PromQL yourself. *(Skill: Prometheus, Grafana, PromQL, SLIs/SLOs)*
-- [ ] **Phase 4 — Logs.** Add Loki + Promtail, add a logs panel, write one LogQL query. *(Skill: Loki, LogQL)*
-- [ ] **Phase 5 — Alert + runbook.** One alert rule (error rate > 5% for 5m). Trigger it (`kubectl scale deploy/postgres --replicas=0`), diagnose, fix, then fill in `runbook.md` + a short postmortem. *(Skill: alerting, incidents, runbooks — the most IREN-relevant phase)*
-- [ ] **Phase 6 (stretch) — GitOps.** Install Argo CD, point it at this repo, change `values.yaml`, push, watch it sync. *(Skill: Argo CD / GitOps)*
-- [ ] **Phase 7 (stretch) — Terraform the platform.** Install the monitoring stack via the Terraform helm provider. *(Skill: IaC)*
-
-## Definition of done
-
-A live demo: service on k8s → Grafana dashboard with metrics + logs → an alert you can trigger on command → a runbook describing the response. Public repo, this README, the diagram.
-
-## Quickstart (Phase 1)
+## Quickstart
 
 ```bash
 minikube start
-kubectl apply -f k8s/
+minikube image build -t beacon-fetcher:local ./app
+helm install beacon ./chart/beacon
 kubectl get pods -w        # wait for Running
 kubectl port-forward svc/fetcher 8000:8000
 curl localhost:8000/metrics
 ```
 
-## Scope discipline
+## Trigger the alert
 
-One service. One dashboard. One alert. One runbook. No Tempo/tracing, no second app, no multi-cluster in v1. Ship first, deepen later.
+```bash
+# Crank failure rate to 50%
+helm upgrade beacon ./chart/beacon --set fetcher.failureRate=0.50
+
+# Watch the dashboard — error rate spikes, alert fires after 5m
+# Then fix it:
+helm upgrade beacon ./chart/beacon --set fetcher.failureRate=0.02
+```
+
+See `runbook.md` for the full incident response procedure and postmortem.

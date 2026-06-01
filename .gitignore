@@ -45,3 +45,7 @@ k8s/secret-prod.yaml
 
 # Logs
 *.log
+
+# Internal docs (not for public repo)
+CLAUDE.md
+blog.md
